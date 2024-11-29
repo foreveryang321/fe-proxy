@@ -1,0 +1,31 @@
+{
+  "name": "fe-proxy",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "vite --port 4001",
+    "build": "vite build && yarn run copy-resource && yarn run js-obf && sh pub.sh",
+    "copy-resource": "cp -rf icons manifest.json dist/",
+    "js-obf": "javascript-obfuscator background.js --output ./dist/background.min.js",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "antd": "^5.12.6",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.254",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "@typescript-eslint/eslint-plugin": "^5.53.0",
+    "@typescript-eslint/parser": "^5.53.0",
+    "@vitejs/plugin-react": "^4.2.1",
+    "eslint": "^7.30.0",
+    "eslint-plugin-react": "^7.32.2",
+    "javascript-obfuscator": "^4.1.1",
+    "rollup-plugin-visualizer": "^5.9.0",
+    "typescript": "^4.9.5",
+    "vite": "^4.5.1"
+  }
+}

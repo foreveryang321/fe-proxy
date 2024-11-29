@@ -1,0 +1,43 @@
+{
+  "name": "fe-proxy",
+  "short_name": "fe-proxy",
+  "version": "1.0.0",
+  "description": "一个用于重定向 URL 并允许 CORS 的工具，使本地开发体验变得轻松愉快。",
+  "manifest_version": 2,
+  "browser_action": {
+    "default_icon": {
+      "16": "./icons/icon-16.png",
+      "24": "./icons/icon-24.png",
+      "32": "./icons/icon-32.png"
+    },
+    "default_title": "fe-proxy",
+    "default_popup": "index.html"
+  },
+  "permissions": [
+    "webRequest",
+    "webRequestBlocking",
+    "storage",
+    "unlimitedStorage",
+    "browsingData",
+    "<all_urls>"
+  ],
+  "icons": {
+    "48": "./icons/icon-32.png",
+    "128": "./icons/icon-32.png"
+  },
+  "commands": {
+    "_execute_browser_action": {
+      "suggested_key": {
+        "windows": "Ctrl+Shift+X",
+        "mac": "Command+Shift+X",
+        "default": "Ctrl+Shift+X"
+      }
+    }
+  },
+  "options_page": "index.html",
+  "background": {
+    "scripts": [
+      "background.min.js"
+    ]
+  }
+}

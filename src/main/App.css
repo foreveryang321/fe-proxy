@@ -1,0 +1,71 @@
+.fe-proxy-container {
+    width: 100vw;
+    min-width: 450px;
+    height: 100vh;
+    min-height: 600px;
+    background: #fff;
+}
+
+.fe-proxy-nav {
+    padding: 8px 12px;
+    background: #f4f6f9;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.fe-proxy-body {
+    padding: 12px;
+    height: calc(100vh - 40px - 20px - 24px);
+    overflow: auto;
+    background: #fff;
+}
+
+.fe-proxy-body-header {
+    padding: 8px 12px 8px 10px;
+    border: 1px solid #d1d3d8;
+    border-bottom: none;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    background: #fff1f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.fe-proxy-body-header-input {
+    border: none;
+    outline: none;
+    box-shadow: none !important;
+    padding: 0 8px;
+}
+
+.fe-proxy-group-footer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 40px;
+}
+
+.fe-proxy-footer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 20px;
+    font-size: 12px;
+    color: #666;
+    background: #f4f6f9;
+}
+
+.fe-proxy-color-green {
+    color: #389e0d;
+    background: #f6ffed;
+}
+
+.ant-collapse > .ant-collapse-item > .ant-collapse-header {
+    padding: 5px 10px;
+}
+
+.ant-collapse-content > .ant-collapse-content-box {
+    padding: 5px 10px;
+}
