@@ -431,7 +431,7 @@ function App() {
         }
       </main>
       <footer className="fe-proxy-footer">
-        Ng v1.17.2
+        fe-proxy v1.17.2
       </footer>
       <ModifyDataModal
         ref={modifyDataModalRef}
