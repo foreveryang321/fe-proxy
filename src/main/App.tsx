@@ -4,7 +4,6 @@ import {
   DeleteOutlined,
   DownloadOutlined,
   DropboxOutlined,
-  ExpandOutlined,
   FormOutlined,
   MoreOutlined,
   PlusOutlined,
@@ -16,7 +15,6 @@ import { defaultGroups, defaultRule, RuleObject } from '../common/value';
 import './App.css';
 import { exportJSON } from './utils/exportJson';
 import { openImportJsonModal } from './utils/importJson';
-import { popupWindow } from './utils/pictureInPicture';
 
 function App() {
   const modifyDataModalRef = useRef<any>({});
@@ -269,7 +267,7 @@ function App() {
                   key: '2',
                   label: '导出',
                   icon: <DownloadOutlined style={{ fontSize: 14 }}/>,
-                  onClick: () => exportJSON(`Ng_Data_${JSON.stringify(new Date())}`, feProxyGroups),
+                  onClick: () => exportJSON('FE_PROXY', feProxyGroups),
                   disabled: feProxyGroups.length < 1
                 },
               ]
@@ -310,13 +308,13 @@ function App() {
               }}
             />
           </Space>
-          {
-            inIframe ? null : <i
-              title="画中画"
-              style={{ marginLeft: 12, cursor: 'pointer' }}
-              onClick={() => popupWindow({ url: chrome.runtime.getURL('index.html') })}
-            ><ExpandOutlined/></i>
-          }
+          {/*{*/}
+          {/*  inIframe ? null : <i*/}
+          {/*    title="画中画"*/}
+          {/*    style={{ marginLeft: 12, cursor: 'pointer' }}*/}
+          {/*    onClick={() => popupWindow({ url: chrome.runtime.getURL('index.html') })}*/}
+          {/*  ><ExpandOutlined/></i>*/}
+          {/*}*/}
         </div>
       </nav>
       <main
