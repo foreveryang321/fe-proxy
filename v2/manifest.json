@@ -2,7 +2,7 @@
   "name": "fe-proxy",
   "short_name": "fe-proxy",
   "version": "2.0.0",
-  "description": "一个用于重定向 URL 并允许 CORS 的工具，使本地开发体验变得轻松愉快。",
+  "description": "一个用于重定向 URL 并允许 CORS 的工具，使本地开发体验变得更加简单。",
   "manifest_version": 2,
   "browser_action": {
     "default_icon": {
