@@ -422,7 +422,7 @@ function App() {
         }
       </main>
       <footer className="fe-proxy-footer">
-        fe-proxy v1.17.2
+        fe-proxy v2.0.0
       </footer>
       <ModifyDataModal
         ref={modifyDataModalRef}
