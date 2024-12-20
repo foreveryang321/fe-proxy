@@ -308,13 +308,6 @@ function App() {
               }}
             />
           </Space>
-          {/*{*/}
-          {/*  inIframe ? null : <i*/}
-          {/*    title="画中画"*/}
-          {/*    style={{ marginLeft: 12, cursor: 'pointer' }}*/}
-          {/*    onClick={() => popupWindow({ url: chrome.runtime.getURL('index.html') })}*/}
-          {/*  ><ExpandOutlined/></i>*/}
-          {/*}*/}
         </div>
       </nav>
       <main

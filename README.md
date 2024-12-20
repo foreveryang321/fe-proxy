@@ -14,8 +14,12 @@
 
 ```shell
 nvm alias default v16.20.2
+npm install -g yarn
 yarn install
+# manifest v2 打包
 yarn run build
+# manifest v3 打包
+yarn run build-v3
 ```
 
 ## 安装
@@ -24,4 +28,4 @@ yarn run build
 
 ## License
 
-略
+MIT
