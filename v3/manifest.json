@@ -16,8 +16,7 @@
     "declarativeNetRequestWithHostAccess"
   ],
   "host_permissions": [
-    "http://*/*",
-    "https://*/*"
+    "<all_urls>"
   ],
   "action": {
     "default_icon": {
@@ -28,7 +27,7 @@
     "default_title": "fe-proxy"
   },
   "side_panel": {
-    "default_path": "dist/index.html"
+    "default_path": "index.html"
   },
   "icons": {
     "16": "./icons/icon-16.png",
@@ -40,18 +39,6 @@
   "background": {
     "service_worker": "service_worker.min.js"
   },
-  "content_scripts": [
-    {
-      "matches": [
-        "<all_urls>"
-      ],
-      "js": [
-        "./content.min.js"
-      ],
-      "run_at": "document_start",
-      "all_frames": true
-    }
-  ],
   "web_accessible_resources": [
     {
       "resources": [

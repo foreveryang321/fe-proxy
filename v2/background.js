@@ -10,19 +10,19 @@ const CONFIG = {
     OFF: 'OFF'
   },
   CORS: {
-    METHODS: 'access-control-allow-methods',
-    CREDENTIALS: 'access-control-allow-credentials',
-    ORIGIN: 'access-control-allow-origin',
-    HEADERS: 'access-control-allow-headers',
+    ALLOW_METHODS: 'Access-Control-Allow-Methods',
+    ALLOW_CREDENTIALS: 'Access-Control-Allow-Credentials',
+    ALLOW_ORIGIN: 'Access-Control-Allow-Origin',
+    ALLOW_HEADERS: 'Access-Control-Allow-Headers',
     DEFAULT_ORIGIN: '*',
     DEFAULT_METHODS: '*',
     DEFAULT_CREDENTIALS: 'true',
-    DEFAULT_HEADERS: 'Content-Type, access-control-allow-headers, Authorization, X-Requested-With, X-Referer'
+    DEFAULT_HEADERS: 'Authorization, Content-Type, Access-Control-Allow-Headers, If-Match, If-Modified-Since, If-None-Match, If-Unmodified-Since, X-Requested-With, X-Referer'
   },
   HEADERS: {
-    ORIGIN: 'origin',
-    REFERER: 'referer',
-    ACCESS_CONTROL_REQUEST: 'access-control-request-headers'
+    ORIGIN: 'Origin',
+    REFERER: 'Referer',
+    ACCESS_CONTROL_REQUEST: 'Access-Control-Request-Headers'
   },
   REG: {
     CHROME_EXTENSION: /^chrome-extension:\/\//i,
@@ -167,8 +167,7 @@ class FeProxy {
       
       // 记录日志
       if (this.feProxyLoggerEnable) {
-        console.log('%o.转发 ---> 原始请求: %o', details.requestId, originUrl);
-        console.log('%o.转发 ---> 转发请求: %o', details.requestId, proxyUrl);
+        console.log('%o.转发 ---> 原始请求: %o, 转发请求: %o', details.requestId, originUrl, proxyUrl);
       }
 
       return { redirectUrl: proxyUrl };
@@ -233,7 +232,7 @@ class FeProxy {
     if (this.feProxyLoggerEnable) {
       console.log('%o.跨域 ---> responseHeaders: %o', details.requestId, responseHeaders);
     }
-    
+
     // 清理请求数据
     this.requestStore.delete(details.requestId);
 
@@ -251,19 +250,19 @@ class FeProxy {
 
       responseHeaders = details.responseHeaders.filter(header => {
         const headerName = header.name.toLowerCase();
-        if (CONFIG.CORS.ORIGIN === headerName) {
+        if (CONFIG.CORS.ALLOW_ORIGIN === headerName) {
           tempOrigin = header.value;
         }
 
-        if (CONFIG.CORS.CREDENTIALS === headerName) {
+        if (CONFIG.CORS.ALLOW_CREDENTIALS === headerName) {
           hasCredentials = header.value;
         }
 
         return ![
-          CONFIG.CORS.ORIGIN,
-          CONFIG.CORS.CREDENTIALS,
-          CONFIG.CORS.METHODS,
-          CONFIG.CORS.HEADERS
+          CONFIG.CORS.ALLOW_ORIGIN,
+          CONFIG.CORS.ALLOW_CREDENTIALS,
+          CONFIG.CORS.ALLOW_METHODS,
+          CONFIG.CORS.ALLOW_HEADERS
         ].includes(headerName);
       });
 
@@ -280,17 +279,17 @@ class FeProxy {
 
     // 添加 CORS 头
     responseHeaders.push({
-      name: CONFIG.CORS.ORIGIN,
+      name: CONFIG.CORS.ALLOW_ORIGIN,
       value: corsOrigin
     });
 
     responseHeaders.push({
-      name: CONFIG.CORS.CREDENTIALS,
+      name: CONFIG.CORS.ALLOW_CREDENTIALS,
       value: CONFIG.CORS.DEFAULT_CREDENTIALS
     });
 
     responseHeaders.push({
-      name: CONFIG.CORS.METHODS,
+      name: CONFIG.CORS.ALLOW_METHODS,
       value: CONFIG.CORS.DEFAULT_METHODS
     });
 
@@ -301,7 +300,7 @@ class FeProxy {
     }
 
     responseHeaders.push({
-      name: CONFIG.CORS.HEADERS,
+      name: CONFIG.CORS.ALLOW_HEADERS,
       value: CONFIG.CORS.DEFAULT_HEADERS + corsHeaders
     });
 
@@ -316,7 +315,7 @@ feProxy.init(storage);
 // 设置事件监听
 runtime.onInstalled.addListener(() => {
   feProxy.init(storage);
-  console.log('%cNg 插件初始化完成', `color: #60cc7d`);
+  console.log('%cfe-proxy 插件初始化完成', `color: #60cc7d`);
 });
 
 storage.onChanged.addListener((changes, namespace) => {
