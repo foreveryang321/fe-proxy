@@ -29,3 +29,11 @@ yarn run build-v3
 ## License
 
 MIT
+
+# chrome.webRequest
+
+https://developer.chrome.com/docs/extensions/reference/api/webRequest?hl=en
+
+# Replace blocking web request listeners
+
+https://developer.chrome.com/docs/extensions/develop/migrate/blocking-web-requests

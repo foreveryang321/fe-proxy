@@ -9,7 +9,7 @@
     "js-obf": "javascript-obfuscator v2/background.js --output ./dist/background.min.js",
     "build-v3": "vite build && yarn run copy-resource-v3 && yarn run js-obf-v3 && sh v3/pub.sh",
     "copy-resource-v3": "cp -rf icons v3/manifest.json dist/",
-    "js-obf-v3": "javascript-obfuscator v3/service_worker.js --output ./dist/service_worker.min.js && javascript-obfuscator v3/content.js --output ./dist/content.min.js",
+    "js-obf-v3": "javascript-obfuscator v3/service_worker.js --output ./dist/service_worker.min.js",
     "preview": "vite preview"
   },
   "dependencies": {

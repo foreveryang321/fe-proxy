@@ -55,11 +55,13 @@ function App() {
       chrome.storage.local.set({ feProxyGroups: importFeProxyGroups });
     }
   };
+
   const onCollapseChange = (keys: string | string[]) => {
     const feProxyCollapseActiveKey = Array.isArray(keys) ? keys : [keys];
     setFeProxyCollapseActiveKey([...feProxyCollapseActiveKey]);
     chrome.storage.local.set({ feProxyCollapseActiveKey: feProxyCollapseActiveKey });
   };
+
   const onFeProxyGroupAdd = () => {
     const newFeProxyGroups = [...feProxyGroups, {
       name: '请输入分组名称（可编辑）',
@@ -70,11 +72,13 @@ function App() {
     setFeProxyGroups([...newFeProxyGroups]);
     chrome.storage.local.set({ feProxyGroups: newFeProxyGroups });
   };
+
   const onFeProxyGroupDelete = (groupIndex: number) => {
     const newFeProxyGroups = feProxyGroups.filter((_, i) => i !== groupIndex);
     setFeProxyGroups([...newFeProxyGroups]);
     chrome.storage.local.set({ feProxyGroups: newFeProxyGroups });
   };
+
   const onFeProxyGroupMove = (groupIndex: number, placement: string) => {
     const movedItem = feProxyGroups.splice(groupIndex, 1)[0];
     if (placement === 'top') {
@@ -85,21 +89,25 @@ function App() {
     setFeProxyGroups([...feProxyGroups]);
     chrome.storage.local.set({ feProxyGroups });
   };
+
   const onFeProxyGroupNameChange = (e: React.ChangeEvent<HTMLInputElement>, groupIndex: number) => {
     feProxyGroups[groupIndex].name = e.target.value;
     setFeProxyGroups([...feProxyGroups]);
     chrome.storage.local.set({ feProxyGroups });
   };
+
   const onFeProxyGroupEnableChange = (groupIndex: number, enable: boolean) => {
     feProxyGroups[groupIndex].enable = enable;
     setFeProxyGroups([...feProxyGroups]);
     chrome.storage.local.set({ feProxyGroups });
   };
+
   const onFeProxyGroupAuthorizationChange = (e: React.ChangeEvent<HTMLInputElement>, groupIndex: number) => {
     feProxyGroups[groupIndex].authorization = e.target.value;
     setFeProxyGroups([...feProxyGroups]);
     chrome.storage.local.set({ feProxyGroups });
   };
+
   const onFeProxyRuleChange = (groupIndex: number, ruleIndex: number, key: string, value: string | boolean) => {
     if (key === 'headers' || key === 'responseText') {
       try {
@@ -114,6 +122,7 @@ function App() {
     setFeProxyGroups([...feProxyGroups]);
     chrome.storage.local.set({ feProxyGroups });
   };
+
   const onFeProxyRuleAdd = (groupIndex: number) => {
     const rule = { ...defaultRule };
     rule.key = String(Date.now());
@@ -121,17 +130,20 @@ function App() {
     setFeProxyGroups([...feProxyGroups]);
     chrome.storage.local.set({ feProxyGroups });
   };
+
   const onFeProxyRuleDelete = (groupIndex: number, key: string) => {
     feProxyGroups[groupIndex].rules = feProxyGroups[groupIndex].rules.filter((v) => v.key !== key);
     setFeProxyGroups([...feProxyGroups]);
     chrome.storage.local.set({ feProxyGroups });
   };
+
   const onFeProxyRuleSave = (
     { groupIndex, ruleIndex, url, forwardUrl }: ModifyDataModalOnSaveProps
   ) => {
     if (url !== undefined) onFeProxyRuleChange(groupIndex, ruleIndex, 'url', url);
     if (forwardUrl !== undefined) onFeProxyRuleChange(groupIndex, ruleIndex, 'forwardUrl', forwardUrl);
   };
+
   const onFeProxyRuleMove = (groupIndex: number, ruleIndex: number, placement: string) => {
     const { rules = [] } = feProxyGroups[groupIndex];
     const movedItem = rules.splice(ruleIndex, 1)[0];
