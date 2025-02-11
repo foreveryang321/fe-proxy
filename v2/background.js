@@ -15,19 +15,19 @@ const CONFIG = {
     ALLOW_ORIGIN: 'Access-Control-Allow-Origin',
     ALLOW_HEADERS: 'Access-Control-Allow-Headers',
     DEFAULT_ORIGIN: '*',
-    DEFAULT_METHODS: '*',
+    DEFAULT_METHODS: 'GET, POST, PUT, DELETE, OPTIONS',
     DEFAULT_CREDENTIALS: 'true',
-    DEFAULT_HEADERS: 'Authorization, Content-Type, Access-Control-Allow-Headers, If-Match, If-Modified-Since, If-None-Match, If-Unmodified-Since, X-Requested-With, X-Referer'
+    DEFAULT_HEADERS: 'Authorization, Content-Type, If-Match, If-Modified-Since, If-None-Match, If-Unmodified-Since, X-Requested-With, X-Referer'
   },
   HEADERS: {
     ORIGIN: 'Origin',
-    REFERER: 'Referer',
+    // REFERER: 'Referer',
     ACCESS_CONTROL_REQUEST: 'Access-Control-Request-Headers'
   },
   REG: {
     CHROME_EXTENSION: /^chrome-extension:\/\//i,
     FORWARD: /\\|\[|]|\(|\)|\*|\$|\^/i,
-    X_HEADER: /^x-/
+    X_HEADER: /^[x|X]-/
   },
   UrlType: {
     REG: 'reg',
@@ -94,7 +94,7 @@ class FeProxy {
     }, 0);
   }
 
-  _getMatchRule(requestId, originUrl) {
+  _getMatchRule(originUrl) {
     if (!this.feProxyEnable) return null;
 
     try {
@@ -110,7 +110,7 @@ class FeProxy {
           const proxyUrl = this._buildProxyUrl(originUrl, rule.url, rule.forwardUrl, matched);
           
           // 存储请求相关数据
-          this.requestStore.set(requestId, {
+          this.requestStore.set(originUrl, {
             authorization: group.authorization?.trim(),
             proxyUrl,
             cors: true
@@ -125,25 +125,25 @@ class FeProxy {
     return null;
   }
 
-  _matchUrl(url, pattern) {
+  _matchUrl(originUrl, ruleUrl) {
     try {
-      if (CONFIG.REG.FORWARD.test(pattern)) {
-        const regex = new RegExp(pattern.replace('??', '\\?\\?'), 'i');
-        return regex.test(url) ? CONFIG.UrlType.REG : false;
+      if (CONFIG.REG.FORWARD.test(ruleUrl)) {
+        const regex = new RegExp(ruleUrl.replace('??', '\\?\\?'), 'i');
+        return regex.test(originUrl) ? CONFIG.UrlType.REG : false;
       }
-      return url.includes(pattern) ? CONFIG.UrlType.STRING : false;
+      return originUrl.includes(ruleUrl) ? CONFIG.UrlType.STRING : false;
     } catch (error) {
       console.error('Error in matchUrl:', error);
       return false;
     }
   }
 
-  _buildProxyUrl(originUrl, url, forwardUrl, matchType) {
+  _buildProxyUrl(originUrl, ruleUrl, ruleForwardUrl, matchType) {
     if (matchType === CONFIG.UrlType.REG) {
-      const r = new RegExp(url.replace('??', '\\?\\?'), 'i');
-      return originUrl.replace(r, forwardUrl).trim();
+      const r = new RegExp(ruleUrl.replace('??', '\\?\\?'), 'i');
+      return originUrl.replace(r, ruleForwardUrl).trim();
     }
-    return originUrl.split(url).join(forwardUrl).trim();
+    return originUrl.split(ruleUrl).join(ruleForwardUrl).trim();
   }
 
   onBeforeRequestCallback(details) {
@@ -155,7 +155,7 @@ class FeProxy {
     }
 
     try {
-      const rule = this._getMatchRule(details.requestId, originUrl);
+      const rule = this._getMatchRule(originUrl);
       if (!rule) {
         return {};
       }
@@ -177,6 +177,17 @@ class FeProxy {
     }
   }
 
+  onBeforeRedirectCallback(details) {
+    const { url, redirectUrl } = details;
+    const storeData = this.requestStore.get(url);
+    if (storeData) {
+      // 清理请求数据
+      this.requestStore.delete(url);
+      // 重新放回去，不过这里使用 redirectUrl
+      this.requestStore.set(redirectUrl, storeData);
+    }
+  }
+
   onBeforeSendHeadersCallback(details) {
     const { url, requestHeaders, requestId } = details;
     
@@ -188,25 +199,24 @@ class FeProxy {
     
     // 处理请求头
     for (const header of requestHeaders) {
-      const headerName = header.name.toLowerCase();
-      if (headerName === CONFIG.HEADERS.ORIGIN || headerName === CONFIG.HEADERS.REFERER) {
+      const headerName = header.name;
+      if (headerName === CONFIG.HEADERS.ORIGIN /*|| headerName === CONFIG.HEADERS.REFERER*/) {
         requestData.originHeader = header.value;
       } else if (headerName === CONFIG.HEADERS.ACCESS_CONTROL_REQUEST || CONFIG.REG.X_HEADER.test(headerName)) {
         requestData.headers.push(headerName);
       }
     }
-
+    // 这里使用 url 获取缓存中的数据，因为在 onBeforeRedirectCallback 中使用的是 redirectUrl 作为缓存 key
+    const storedData = this.requestStore.get(url) || {};
     if (requestData.headers.length || requestData.originHeader) {
-      const currentData = this.requestStore.get(requestId) || {};
-      this.requestStore.set(requestId, { ...currentData, ...requestData });
+      this.requestStore.set(url, { ...storedData, ...requestData });
     }
 
     // 处理授权信息
-    const storedData = this.requestStore.get(requestId);
     if (this.feProxyEnable && storedData?.authorization) {
       // 记录日志
       if (this.feProxyLoggerEnable) {
-        console.log('%o.请求头 ---> Authorization: %o', details.requestId, storedData.authorization);
+        console.log('%o.请求头 ---> Authorization: %o', requestId, storedData.authorization);
       }
       requestHeaders.push({ 
         name: 'Authorization', 
@@ -222,19 +232,21 @@ class FeProxy {
       return {};
     }
 
-    const requestData = this.requestStore.get(details.requestId);
-    if (!requestData?.cors) {
+    const { url, requestId } = details;
+
+    const storedData = this.requestStore.get(url);
+    if (!storedData?.cors) {
       return {};
     }
 
-    const responseHeaders = this._buildCorsHeaders(details, requestData);
+    const responseHeaders = this._buildCorsHeaders(details, storedData);
     // 记录日志
     if (this.feProxyLoggerEnable) {
-      console.log('%o.跨域 ---> responseHeaders: %o', details.requestId, responseHeaders);
+      console.log('%o.跨域 ---> responseHeaders: %o', requestId, responseHeaders);
     }
 
     // 清理请求数据
-    this.requestStore.delete(details.requestId);
+    this.requestStore.delete(url);
 
     return { responseHeaders };
   }
@@ -249,7 +261,7 @@ class FeProxy {
       let tempOrigin = '';
 
       responseHeaders = details.responseHeaders.filter(header => {
-        const headerName = header.name.toLowerCase();
+        const headerName = header.name;
         if (CONFIG.CORS.ALLOW_ORIGIN === headerName) {
           tempOrigin = header.value;
         }
@@ -296,7 +308,7 @@ class FeProxy {
     // 处理自定义请求头
     let corsHeaders = '';
     if (requestData.headers?.length) {
-      corsHeaders = ',' + requestData.headers.join(',');
+      corsHeaders = ', ' + requestData.headers.join(', ');
     }
 
     responseHeaders.push({
@@ -319,6 +331,7 @@ runtime.onInstalled.addListener(() => {
 });
 
 storage.onChanged.addListener((changes, namespace) => {
+  if (namespace !== 'local') return;
   let needUpdateIcon = false;
   
   for (const [key, { oldValue, newValue }] of Object.entries(changes)) {
@@ -340,21 +353,34 @@ const setupRequestListeners = () => {
   const requestFilter = { urls: [CONFIG.CHROME.ALL_URLS] };
 
   webRequest.onBeforeRequest.addListener(
-    details => feProxy.onBeforeRequestCallback(details),
+    details => {
+      return feProxy.onBeforeRequestCallback(details);
+    },
     requestFilter,
-    [CONFIG.CHROME.BLOCKING]
+    [CONFIG.CHROME.BLOCKING, CONFIG.CHROME.EXTRA_HEADERS]
   );
 
   webRequest.onBeforeSendHeaders.addListener(
-    details => feProxy.onBeforeSendHeadersCallback(details),
+    details => {
+      return feProxy.onBeforeSendHeadersCallback(details);
+    },
     requestFilter,
-    [CONFIG.CHROME.BLOCKING, CONFIG.CHROME.REQUEST_HEADERS]
+    [CONFIG.CHROME.BLOCKING, CONFIG.CHROME.REQUEST_HEADERS, CONFIG.CHROME.EXTRA_HEADERS]
   );
 
   webRequest.onHeadersReceived.addListener(
-    details => feProxy.onHeadersReceivedCallback(details),
+    details => {
+      return feProxy.onHeadersReceivedCallback(details);
+    },
     requestFilter,
     [CONFIG.CHROME.BLOCKING, CONFIG.CHROME.RESPONSE_HEADERS, CONFIG.CHROME.EXTRA_HEADERS]
+  );
+
+  webRequest.onBeforeRedirect.addListener(
+    details => {
+        feProxy.onBeforeRedirectCallback(details);
+    },
+    requestFilter
   );
 };
 

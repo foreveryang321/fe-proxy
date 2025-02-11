@@ -1,5 +1,5 @@
 // eslint-disable-next-line no-undef
-const { storage, action, sidePanel } = chrome;
+const { storage, action, sidePanel, runtime } = chrome;
 
 action.onClicked.addListener(async () => {
   sidePanel
@@ -107,8 +107,8 @@ class FeProxy {
             priority: 3,
             condition: {
               // regexFilter: rule.url,
-              // urlFilter: "|http*",
-              initiatorDomains: ["10.254.39.2"],
+              urlFilter: "|http*",
+              // initiatorDomains: ["192.168.123.1"],
               // 不是所有资源类型都需要添加 Authorization 头
               resourceTypes: ['xmlhttprequest']
             },
@@ -203,35 +203,28 @@ const feProxy = new FeProxy();
 // 初始化
 feProxy.init(storage);
 
+// 设置事件监听
+runtime.onInstalled.addListener(() => {
+  feProxy.init(storage);
+  console.log('%cfe-proxy 插件初始化完成', `color: #60cc7d`);
+});
+
 // 监听存储变化
 storage.onChanged.addListener((changes, namespace) => {
   if (namespace !== 'local') return;
-
-  let needUpdateRules = false;
-
-  for (const [key, { newValue }] of Object.entries(changes)) {
-    switch (key) {
-      case 'feProxyEnable':
-        feProxy.feProxyEnable = newValue ?? false;
-        feProxy.updateIcon();
-        needUpdateRules = true;
-        break;
-      case 'feProxyCorsEnable':
-        feProxy.feProxyCorsEnable = newValue ?? false;
-        needUpdateRules = true;
-        break;
-      case 'feProxyLoggerEnable':
-        feProxy.feProxyLoggerEnable = newValue ?? false;
-        break;
-      case 'feProxyGroups':
-        feProxy.feProxyGroups = newValue ?? [];
-        feProxy.updateIcon();
-        needUpdateRules = true;
-        break;
+  let needUpdate = false;
+  
+  for (const [key, { oldValue, newValue }] of Object.entries(changes)) {
+    if (['feProxyEnable', 'feProxyCorsEnable', 'feProxyLoggerEnable', 'feProxyGroups'].includes(key)) {
+      if (oldValue !== newValue) {
+        feProxy[key] = newValue;
+        needUpdate = true;
+      }
     }
   }
 
-  if (needUpdateRules) {
+  if (needUpdate) {
+    feProxy.updateIcon();
     feProxy.updateDynamicRules();
   }
 });
