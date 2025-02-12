@@ -40,7 +40,7 @@ const FEC = {
 };
 
 // 合并所有请求相关的 Map
-const requestStore = new Map();
+const feProxyStore = new Map();
 
 class FeProxy {
   constructor() {
@@ -108,7 +108,7 @@ class FeProxy {
           
           // 存储请求相关数据
           // 如果出现 CORS 预检，details.requestId 会变化，而 details.tabId 不会，所以这里使用 tabId
-          requestStore.set(tabId, {
+          feProxyStore.set(tabId, {
             authorization: group.authorization?.trim(),
             proxyUrl,
             cors: true
@@ -189,7 +189,7 @@ class FeProxy {
     if (authorizationHeader) {
       return {};
     }
-    const storedData = requestStore.get(tabId) || {};
+    const storedData = feProxyStore.get(tabId) || {};
     if (storedData?.authorization) {
       // 记录日志
       if (this.feProxyLoggerEnable) {
@@ -212,7 +212,7 @@ class FeProxy {
       return {};
     }
 
-    const storedData = requestStore.get(tabId);
+    const storedData = feProxyStore.get(tabId);
     if (!storedData?.cors) {
       return {};
     }
@@ -339,7 +339,7 @@ storage.onChanged.addListener((changes, namespace) => {
 });
 
 // 关闭 tab 时，清理缓存数据
-chrome.tabs.onRemoved.addListener(tabId => requestStore.delete[tabId]);
+chrome.tabs.onRemoved.addListener(tabId => feProxyStore.delete[tabId]);
 
 // 设置请求监听器
 const setupRequestListeners = () => {
