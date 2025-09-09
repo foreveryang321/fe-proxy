@@ -147,7 +147,8 @@ class FeProxy {
             priority: 1,
             condition: {
               // regexFilter: rule.forwardUrl,
-              urlFilter: "|http*",
+              // urlFilter: "|http*",
+              urlFilter: "|" + rule.forwardUrl + "*",
               resourceTypes: CONFIG.DNR.RESOURCE_TYPES
             },
             action: {
@@ -156,13 +157,9 @@ class FeProxy {
                 {
                   header: 'Access-Control-Allow-Origin',
                   operation: 'set',
-                  value: '{request_header:referer}'
+                  value: '*'
+                  // value: rule.url
                 },
-                // {
-                //   header: "Content-Security-Policy",
-                //   operation: "set",
-                //   value: ""
-                // },
                 {
                   header: 'Access-Control-Allow-Methods',
                   operation: 'set',
@@ -171,17 +168,17 @@ class FeProxy {
                 {
                   header: 'Access-Control-Allow-Headers',
                   operation: 'set',
-                  value: 'Content-Type, Authorization, X-Requested-With, X-Referer'
+                  value: '*'
+                },
+                {
+                  header: 'Access-Control-Expose-Headers',
+                  operation: 'set',
+                  value: '*'
                 },
                 {
                   header: 'Access-Control-Allow-Credentials',
                   operation: 'set',
                   value: 'true'
-                },
-                {
-                  header: 'Access-Control-Max-Age',
-                  operation: 'set',
-                  value: '86400'
                 }
               ]
             }
