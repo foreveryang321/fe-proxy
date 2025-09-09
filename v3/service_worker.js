@@ -107,8 +107,8 @@ class FeProxy {
             priority: 3,
             condition: {
               // regexFilter: rule.url,
-              urlFilter: "|http*",
-              // initiatorDomains: ["192.168.123.1"],
+              // urlFilter: "|http*",
+              urlFilter: "|" + rule.forwardUrl + "*",
               // 不是所有资源类型都需要添加 Authorization 头
               resourceTypes: ['xmlhttprequest']
             },
