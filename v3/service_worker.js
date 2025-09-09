@@ -1,11 +1,13 @@
 // eslint-disable-next-line no-undef
-const { storage, action, sidePanel, runtime } = chrome;
+const { storage, action, runtime } = chrome;
 
-action.onClicked.addListener(async () => {
-  sidePanel
-    .setPanelBehavior({ openPanelOnActionClick: true })
-    .catch((error) => console.error(error));
-});
+// const { sidePanel } = chrome;
+// 使用 sidePanel 打开弹窗
+// action.onClicked.addListener(async () => {
+//   sidePanel
+//     .setPanelBehavior({ openPanelOnActionClick: true })
+//     .catch((error) => console.error(error));
+// });
 
 const CONFIG = {
   COLORS: {
